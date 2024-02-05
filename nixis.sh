@@ -19,15 +19,16 @@ echo "##########################################################################
 echo
 
 set_password() {
-	read -rs -p "[#?] Enter your '$1' password: " PASSWORD1
+	read -r -sp "[#?] Enter your '$1' password: " PASSWORD1
 	echo
-	read -rs -p "[#?] Confirm password: " PASSWORD2
+	read -r -sp "[#?] Confirm password: " PASSWORD2
 	echo
 	if [[ ${PASSWORD1} == "${PASSWORD2}" ]]; then
-		smb_passwd="${PASSWORD1}"
+		declare -n VARIABLE="$2"
+		VARIABLE="${PASSWORD1}"
 	else
-		echo "ERROR! Passwords do not match."
-		set_password "$1"
+		printf "ERROR! Passwords do not match. Try again.\n\n"
+		set_password "$1" "$2"
 	fi
 }
 
@@ -37,7 +38,7 @@ echo
 echo "[#?] Enter your Samba username:"
 read -er smb_usr
 echo
-set_password "Samba"
+set_password "Samba" "smb_passwd"
 echo
 echo "[#?] Enter the IP address of your Samba server:"
 read -er ip_address
