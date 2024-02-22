@@ -57,15 +57,24 @@ echo "################# Partitioning the disk..."
 echo "######################################################################################################"
 echo
 
-wipefs -a -f /dev/sda
+DISK=/dev/sda
 
-parted --script /dev/sda mklabel msdos
-parted --script /dev/sda mkpart primary ext4 1MiB 100%
-parted --script /dev/sda set 1 boot on
+wipefs -a -f "${DISK}"
 
-partprobe /dev/sda
+### BIOS with GPT
+parted --script "${DISK}" mklabel gpt
+parted --script "${DISK}" mkpart ext2 1MiB 2MiB
+parted --script "${DISK}" set 1 bios_grub on
+parted --script "${DISK}" mkpart btrfs 2MiB 100%
+partprobe "${DISK}"
+mkfs.ext4 -F -L nixos "${DISK}"2
 
-mkfs.ext4 -F -L nixos /dev/sda1
+### BIOS with MBR
+# parted --script "${DISK}" mklabel msdos
+# parted --script "${DISK}" mkpart primary ext4 1MiB 100%
+# parted --script "${DISK}" set 1 boot on
+# partprobe "${DISK}"
+# mkfs.ext4 -F -L nixos "${DISK}"1
 
 sleep 3
 
